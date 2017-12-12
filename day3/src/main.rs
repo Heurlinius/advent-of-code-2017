@@ -1,7 +1,13 @@
+use std::collections::HashMap;
+
 fn main() {
     let input = 325489;
+
     let part1 = distance_between_squares(1, input);
     println!("Part 1 = {}", part1);
+
+    let part2 = find_value(input);
+    println!("Part 2 = {}", part2);
 }
 
 fn find_layer_size(square: usize) -> usize {
@@ -58,6 +64,44 @@ fn distance_between_squares(a: usize, b: usize) -> usize {
     let (b_x, b_y) = distance_from_center(b);
 
     ((a_x - b_x).abs() + (a_y - b_y).abs()) as usize
+}
+
+fn find_value(limit: usize) -> usize {
+    let mut values = HashMap::new();
+    values.insert((0, 0), 1); // seed value
+    let mut value = 0;
+    let mut square = 2;
+    loop {
+        value = write_next_value(square, &mut values);
+        if value > limit {
+            break;
+        }
+        square += 1;
+    }
+    value
+}
+
+fn write_next_value(square: usize, grid: &mut HashMap<(isize, isize), usize>) -> usize {
+    let coord = distance_from_center(square);
+    let neighbour_offsets = [
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (0, -1),
+        (0, 1),
+        (1, -1),
+        (1, 0),
+        (1, 1),
+    ];
+    let mut value = 0usize;
+    for offset in neighbour_offsets.into_iter() {
+        match grid.get(&(coord.0 + offset.0, coord.1 + offset.1)) {
+            Some(&x) => { value += x; },
+            None => { },
+        }
+    }
+    grid.insert(coord, value);
+    value
 }
 
 #[cfg(test)]
